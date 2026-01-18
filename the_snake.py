@@ -188,5 +188,5 @@ def handle_keys(game_object):
                 game_object.next_direction = RIGHT
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

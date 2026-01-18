@@ -6,7 +6,6 @@ from typing import Any
 
 from pygame.time import Clock
 import pytest
-import pytest_timeout
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 sys.path.append(str(BASE_DIR))
@@ -51,7 +50,7 @@ def _the_snake(snake_import_test):
         )
     for class_name in ('GameObject', 'Snake', 'Apple'):
         assert hasattr(the_snake, class_name), (
-            f'Убедитесь, что в модуле `the_snake` определен класс `{class_name}`.'
+            f' определите класс `{class_name}`.'
         )
     return the_snake
 
@@ -67,9 +66,6 @@ def write_timeout_reasons(text, stream=None):
         stream = sys.stderr
     text = TIMEOUT_ASSERT_MSG
     stream.write(text)
-
-
-pytest_timeout.write = write_timeout_reasons
 
 
 def _create_game_object(class_name, module):

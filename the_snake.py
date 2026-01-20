@@ -182,4 +182,3 @@ def handle_keys(game_object):
 
 if __name__ == '__main__':
     main()
-

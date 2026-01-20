@@ -45,18 +45,15 @@ class GameObject:
 
     def __init__(self, body_color=SNAKE_COLOR):
         """Инициализирует объект игры."""
-
         self.position = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         self.body_color = body_color
 
     def draw(self):
         """Абстрактный метод для отрисовки объекта на экран."""
-
         pass
 
     def draw_cell(self, position, color=None):
         """Отрисовывает ячейку на экран."""
-
         rect = pg.Rect(position, (GRID_SIZE, GRID_SIZE))
         pg.draw.rect(screen, color or self.body_color, rect)
         pg.draw.rect(screen, BORDER_COLOR, rect, 1)
@@ -65,15 +62,15 @@ class GameObject:
 class Apple(GameObject):
     """Яблоко"""
 
-    def __init__(self, snake_positions=[]):
+    def __init__(self, snake_positions=None):
         """Инициализирует яблоко на игровом поле."""
-
         super().__init__(APPLE_COLOR)
+        if snake_positions is None:
+            snake_positions = []
         self.randomize_position(snake_positions)
 
     def randomize_position(self, snake_positions):
         """Установка случайного положения яблока на игровом поле."""
-
         while True:
             self.position = (
                 randint(0, SCREEN_WIDTH // GRID_SIZE - 1) * GRID_SIZE,
@@ -84,7 +81,6 @@ class Apple(GameObject):
 
     def draw(self, screen):
         """Отрисовывает яблоко на поверхности."""
-
         self.draw_cell(self.position, self.body_color)
 
 
@@ -93,23 +89,18 @@ class Snake(GameObject):
 
     def __init__(self):
         """Инициализирует начальное состояние змейки."""
-
         super().__init__(SNAKE_COLOR)
         self.length = 1
         self.positions = [self.position]
         self.direction = RIGHT
         self.next_direction = None
 
-    # ... другие методы ...
-
     def get_head_position(self):
         """Возвращает позицию головы змейки."""
-
         return self.positions[0]
 
     def move(self):
         """Обновляем местоположение змейки."""
-
         head_position = self.get_head_position()
 
         new_head = (
@@ -124,13 +115,11 @@ class Snake(GameObject):
 
     def draw(self, surface):
         """Отрисовывает змейку на экране и убирает след."""
-
         for position in self.positions:
             self.draw_cell(position, self.body_color)
 
     def reset(self):
         """Сбрасывает змейку в начальное состояние и продолжает игру."""
-
         self.length = 1
         self.positions = [self.position]
         self.direction = RIGHT
@@ -176,7 +165,6 @@ def main():
 
 def handle_keys(game_object):
     """Обрабатывает нажатия клавиш для управления змейкой."""
-
     for event in pg.event.get():
         if event.type == pg.QUIT:
             pg.quit()
@@ -194,3 +182,4 @@ def handle_keys(game_object):
 
 if __name__ == '__main__':
     main()
+

@@ -50,7 +50,6 @@ class GameObject:
 
     def draw(self):
         """Абстрактный метод для отрисовки объекта на экран."""
-        pass
 
     def draw_cell(self, position, color=None):
         """Отрисовывает ячейку на экран."""
@@ -62,21 +61,19 @@ class GameObject:
 class Apple(GameObject):
     """Яблоко"""
 
-    def __init__(self, snake_positions=None):
+    def __init__(self, taken_positions=[]):
         """Инициализирует яблоко на игровом поле."""
         super().__init__(APPLE_COLOR)
-        if snake_positions is None:
-            snake_positions = []
-        self.randomize_position(snake_positions)
+        self.randomize_position(taken_positions or [])
 
-    def randomize_position(self, snake_positions):
+    def randomize_position(self, taken_positions):
         """Установка случайного положения яблока на игровом поле."""
         while True:
             self.position = (
                 randint(0, SCREEN_WIDTH // GRID_SIZE - 1) * GRID_SIZE,
                 randint(0, SCREEN_HEIGHT // GRID_SIZE - 1) * GRID_SIZE
             )
-            if self.position not in snake_positions:
+            if self.position not in taken_positions:
                 break
 
     def draw(self, screen):
@@ -90,10 +87,7 @@ class Snake(GameObject):
     def __init__(self):
         """Инициализирует начальное состояние змейки."""
         super().__init__(SNAKE_COLOR)
-        self.length = 1
-        self.positions = [self.position]
-        self.direction = RIGHT
-        self.next_direction = None
+        self.reset()
 
     def get_head_position(self):
         """Возвращает позицию головы змейки."""
@@ -101,19 +95,22 @@ class Snake(GameObject):
 
     def move(self):
         """Обновляем местоположение змейки."""
-        head_position = self.get_head_position()
+        head_x, head_y = self.get_head_position()
 
-        new_head = (
-            (head_position[0] + self.direction[0] * GRID_SIZE) % SCREEN_WIDTH,
-            (head_position[1] + self.direction[1] * GRID_SIZE) % SCREEN_HEIGHT
+        self.position = (
+            (head_x + self.direction[0] * GRID_SIZE) % SCREEN_WIDTH,
+            (head_y + self.direction[1] * GRID_SIZE) % SCREEN_HEIGHT
         )
 
-        # Обновление позиций
-        self.positions.insert(0, new_head)
+    # Обновление позиций
+        self.positions.insert(0, self.position)
         if len(self.positions) > self.length:
-            self.last = self.positions.pop()
+            last_position = self.positions.pop()
+            self.draw_cell(last_position, BOARD_BACKGROUND_COLOR)
+        else:
+            last_position = None
 
-    def draw(self, surface):
+    def draw(self, screen):
         """Отрисовывает змейку на экране и убирает след."""
         for position in self.positions:
             self.draw_cell(position, self.body_color)
@@ -130,33 +127,29 @@ class Snake(GameObject):
         self.direction = new_direction
 
 
-# Инициализация Pygame
-
-pg.init()
-
-
 def main():
     """Основной цикл игры."""
     snake = Snake()
-    apple = Apple()
+    apple = Apple(snake.positions)
     while True:
         clock.tick(SPEED)
         handle_keys(snake)
 
-        # Проверка столкновения со яблоком
-        if snake.get_head_position() == apple.position:
-            snake.length += 1
-            apple.randomize_position(snake.positions)
-
         # Обновление позиции змейки
         snake.move()
 
-        # Проверка на столкновение со своим телом
-        head_position = snake.get_head_position()
-        if len(snake.positions) > 2 and head_position in snake.positions[2:]:
-            snake.reset()
+        # Проверка столкновения со яблоком
+        if snake.get_head_position() == apple.position:
+            screen.fill(BOARD_BACKGROUND_COLOR)
+            snake.length += 1
+            apple.randomize_position(snake.positions)
 
-        # Очистка экрана и отрисовка объектов
+        # Проверка на столкновение со своим телом
+        elif snake.get_head_position() in snake.positions[2:]:
+            snake.reset()
+            apple.randomize_position(snake.positions)
+
+        # Отрисовка объектов
         screen.fill(BOARD_BACKGROUND_COLOR)
         apple.draw(screen)
         snake.draw(screen)

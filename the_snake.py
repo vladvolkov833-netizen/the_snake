@@ -61,8 +61,9 @@ class GameObject:
 class Apple(GameObject):
     """Яблоко"""
 
-    def __init__(self, taken_positions=[]):
-        """Инициализирует яблоко на игровом поле."""
+    def __init__(self, taken_positions=None):
+        if taken_positions is None:
+            taken_positions = []
         super().__init__(APPLE_COLOR)
         self.randomize_position(taken_positions or [])
 
